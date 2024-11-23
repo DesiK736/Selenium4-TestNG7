@@ -1,4 +1,4 @@
-package HW1;
+package HW1.Assertions;
 
 public class GeneralCounter {
     public String type;
@@ -202,5 +202,179 @@ Assert.assertEquals(50, 49);
         SoftAssert softAssert = new SoftAssert();
         softAssert.assertEquals(counter.isEven(5), 4, "Not correct");
         softAssert.assertAll();
+    }
+}
+
+package HW1.DataProvider;
+
+/* Created by: {@Desislava Kancheva/GitHub username: @DesiK736} */
+/* Write a test class to verify the order processing in an e-commerce application. The class should include tests to check if the order status is
+updated correctly and if the total price is calculated. Hints: Use String to represent the actual and expected order status; Choose your own values when comparing the status and the total price; Use Hard Assertions*/
+
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+public class OrderProcessingAppTest {
+
+    static class Order   {
+        private String status;
+        private float totalPrice;
+
+        public Order(String status, float totalPrice)  {
+            this.status = status;
+            this.totalPrice = totalPrice;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
+        }
+
+        public float getTotalPrice() {
+            return totalPrice;
+        }
+
+        public void setTotalPrice(float totalPrice) {
+            this.totalPrice = totalPrice;
+        }
+    }
+
+    @BeforeClass
+    public void setUpClass()  {
+        System.out.println("Setting up the Test Class! ");  //Set up before the test class.
+    }
+    @BeforeMethod
+    public void setUpMethod()  {
+        System.out.println("Setting up, before a Test Method! ");  //Set up before each test method.
+    }
+    @AfterMethod
+    public void cleanUpMethod()  {
+       System.out.println("Cleaning up, after a Test Method! ");  //Clean up after each test method.
+}
+
+    //Mock method to simulate order status update
+    public void updateOrderStatus(Order generatedOrder, String newStatus)  {
+        generatedOrder.setStatus(newStatus);
+    }
+    //Mock method to simulate total price calculation
+    public float calculateTotalPrice(float[]  productPrices, float taxRate)  {
+        float subtotal = 0;
+        for (float price  :  productPrices)  {
+            subtotal +=price;
+        }
+        return subtotal + (subtotal * taxRate);
+    }
+
+    @Test(priority = 2)
+    public void testOrderStatusUpdate()  {
+        Order generatedOrder = new Order("Processing", 106.78f);
+        System.out.println("Second priority test execution:  'testOrderStatusUpdate' ");
+
+        updateOrderStatus(generatedOrder, "Delivered");
+        Assert.assertEquals("Delivered", "Delivered", "Order status should be updated to 'Delivered'.");
+    }
+    @Test(priority = 1)
+    public void testTotalPriceCalculation()  {
+        float[]  productPrices = {24.90f, 15.99f, 65.89f};
+        float taxRate = 0.1f;
+        float expectedTotalPrices = 106.78f;
+
+        float actualTotalPrice = calculateTotalPrice(productPrices, taxRate);
+        System.out.println("First priority test execution:  'testTotalPriceCalculation' ");
+
+        Assert.assertEquals(116.78f, 106.78f, "Actual Total price didn't match Expected Total price.");
+    }
+}
+
+package HW1.DataProvider;
+
+/* Created by: {@Desislava Kancheva/GitHub username: @DesiK736} */
+/*Write a test class to verify the content of a web page. The class should include one test to check if the page title, header, and footer are displayed
+correctly. The test must always check all elements. Hints: Use String to represent page elements; Choose your own values when comparing;
+Use Soft assertions. Update the tasks by using @DataProvider. Choose suitable sets of data.*/
+
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+import org.testng.asserts.SoftAssert;
+
+public class WebPageContentTest {
+    //Mock page content
+    static class WebPage {
+        private String title;
+        private String header;
+        private String footer;
+
+        public WebPage(String title, String header, String footer) {
+            this.title = title;
+            this.header = header;
+            this.footer = footer;
+        }
+
+        public String getHeader() {
+            return header;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public String getFooter() {
+            return footer;
+        }
+    }
+//Custom "TestData Class": encapsulates expected values for the test (title, header, and footer).
+//It provides a clean and structured way to manage test input without relying on arrays or raw objects.
+    static class TestData {
+        private final String expectedTitle;
+        private final String expectedHeader;
+        private final String expectedFooter;
+
+        public TestData(String expectedTitle, String expectedHeader, String expectedFooter) {
+            this.expectedTitle = expectedTitle;
+            this.expectedHeader = expectedHeader;
+            this.expectedFooter = expectedFooter;
+        }
+
+        public String getExpectedTitle() {
+            return expectedTitle;
+        }
+
+        public String getExpectedHeader() {
+            return expectedHeader;
+        }
+
+        public String getExpectedFooter() {
+            return expectedFooter;
+        }
+    }
+
+    @DataProvider(name = "pageDataProvider")
+    public Object[][]  pageDataProvider()  {
+            return new  Object[][] {
+        {new TestData ("Promotional Items", "Clothes", "Excellent Quality")},
+        {new TestData (" New Promotional Items", "New Clothes", "Good Quality")}
+    };
+}
+@Test(dataProvider = "pageDataProvider")
+public void testWebPageContent(TestData testData)  {
+    //Mocking a page
+    WebPage page = new WebPage(
+            testData.getExpectedTitle(),
+            testData.getExpectedHeader(),
+            testData.getExpectedFooter()
+    );
+
+    SoftAssert softAssert = new SoftAssert();
+
+    softAssert.assertEquals(page.getTitle(), testData.getExpectedTitle(), "Title mismatch!");
+    softAssert.assertEquals(page.getHeader(), testData.getExpectedHeader(), "Header mismatch!");
+    softAssert.assertEquals(page.getFooter(), testData.getExpectedFooter(), "Footer mismatch!");
+    softAssert.assertAll();
     }
 }
