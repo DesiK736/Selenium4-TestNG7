@@ -1,0 +1,180 @@
+package HW2.Selenium;
+
+/* Created by: {@Desislava Kancheva/GitHub username: @DesiK736} */
+//Exercising Selenium WebDriver with few tests.
+
+import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+public class InitialSeleniumTest {
+
+    @Test
+    public void testLogin()  {
+        WebDriverManager.chromedriver().setup();
+        ChromeDriver driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.get("http://training.skillo-bg.com:4300/posts/all");
+
+        String pageTitle = driver.getTitle();
+        Assert.assertEquals("ISkillo", pageTitle);
+
+        WebElement loginLink = driver.findElement(By.cssSelector("#nav-link-login"));
+        loginLink.click();
+
+        String expectedLoginPageUrl = "http://training.skillo-bg.com:4300/users/login";
+        String actualLoginPageUrl = driver.getCurrentUrl();
+        Assert.assertEquals(actualLoginPageUrl, expectedLoginPageUrl, "Expected Login url page didn't match Actual Login page!");
+
+        WebElement signInElement = driver.findElement(By.xpath("//*[contains(text(),'Si')]"));
+        Assert.assertTrue(signInElement.isDisplayed(), "The 'Sign in' form is failed to display!");
+
+        WebElement userNameField = driver.findElement(By.id("defaultLoginFormUsername"));
+        userNameField.sendKeys("j.andrews@abv.bg");
+
+        WebElement passwordField = driver.findElement(By.id("defaultLoginFormPassword"));
+        passwordField.sendKeys("dwakahe251");
+
+        WebElement rememberMeCheckBox = driver.findElement(By.xpath("//*[text()='Remember me']"));
+        rememberMeCheckBox.click();
+        Assert.assertTrue(rememberMeCheckBox.isSelected());
+
+        WebElement signInButton = driver.findElement(By.id("sign-in-button"));
+        Assert.assertTrue(signInButton.isEnabled());
+        signInButton.click();
+
+        driver.close();
+    }
+}
+
+package HW2.Selenium;
+
+/* Created by: {@Desislava Kancheva/GitHub username: @DesiK736} */
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import java.time.Duration;
+
+public class LoginFieldsTest {
+   public static final String MAIN_URL = "http://training.skillo-bg.com:4300/posts/all";
+   public static final String PAGE_TITLE = "ISkillo";
+
+   WebDriver driver = new ChromeDriver();
+   WebDriverWait wait = new WebDriverWait(driver, Duration.ofMillis(200));
+
+   @BeforeMethod
+   public void tuneBrowser()  {
+      driver.manage().window().maximize();
+      driver.manage().timeouts().implicitlyWait(Duration.ofMillis(300));
+   }
+   @Test
+   public void verifyLoginPageNavigation()  throws InterruptedException  {
+      driver.get(MAIN_URL);
+      System.out.println("The user is on ISkillo home page.");
+      String actualPageTitle = driver.getTitle();
+      Assert.assertEquals(PAGE_TITLE, actualPageTitle);
+
+      System.out.println("Verify home page title, when user is not logged in.");
+      WebElement nav_login_btn = driver.findElement(By.cssSelector("#nav-link-login"));
+
+      nav_login_btn.click();
+
+      WebElement user_name_field = driver.findElement(By.cssSelector("#defaultLoginFormUsername"));
+
+      user_name_field.clear();
+      user_name_field.sendKeys("Fill your proper username.");
+
+      WebElement signIn_btn = driver.findElement(By.id("sign-in-button"));
+
+      String signIn_btn_label = signIn_btn.getText();
+      System.out.println(signIn_btn_label);
+
+      Thread.sleep(4000);
+   }
+   @AfterMethod
+   public void tearDown()  {
+      if (driver!=null)  {
+         driver.quit();
+      }
+   }
+}
+
+package HW2.Selenium;
+
+/* Created by: {@Desislava Kancheva/GitHub username: @DesiK736} */
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WindowType;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.annotations.Test;
+
+import java.time.Duration;
+
+public class WindowOperationsTest {
+
+    @Test
+    public void previewWindowOptions ()  {
+        WebDriver driver = new ChromeDriver();
+        driver.get("https://webdriveruniversity.com/");
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(100));
+
+        driver.switchTo().newWindow(WindowType.TAB);
+        driver.get("http://google.com");
+        driver.findElement(By.name("q")).sendKeys("Glad to see you here! :  )");
+
+        driver.switchTo().newWindow(WindowType.WINDOW);
+        driver.get("https://dir.bg/");
+        System.out.println(driver.getTitle());
+
+        System.out.println(driver.getWindowHandles().size());
+
+        driver.quit();
+    }
+}
+
+package HW2.Selenium;
+
+/* Created by: {@Desislava Kancheva/GitHub username: @DesiK736} */
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.Test;
+
+import java.time.Duration;
+
+public class IFrameActionsTest {
+
+    @Test
+    public void lookThroughIFrames()  throws InterruptedException  {
+        WebDriver driver = new ChromeDriver();
+        WebDriverWait wait = new WebDriverWait(driver,Duration.ofSeconds(10));
+        driver.get("https://webdriveruniversity.com/IFrame/index.html");
+        driver.manage().window().maximize();
+        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(15));
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+
+
+        System.out.println("Total Number of 'IFrames' in this page are: ");
+        System.out.println(driver.findElements(By.tagName("iframe")).size());
+
+        driver.switchTo().frame("frame");
+        driver.findElement(By.xpath("//*[contains(text(),'Our')]")).click();
+
+        driver.quit();
+    }
+}
