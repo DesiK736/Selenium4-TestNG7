@@ -1,4 +1,4 @@
-package HW1.Assertions;
+package hw1.assertions;
 
 public class GeneralCounter {
     public String type;
@@ -205,7 +205,7 @@ Assert.assertEquals(50, 49);
     }
 }
 
-package HW1.DataProvider;
+package hw1.data_provider;
 
 /* Created by: {@Desislava Kancheva/GitHub username: @DesiK736} */
 /* Write a test class to verify the order processing in an e-commerce application. The class should include tests to check if the order status is
@@ -292,7 +292,7 @@ public class OrderProcessingAppTest {
     }
 }
 
-package HW1.DataProvider;
+package hw1.data_provider;
 
 /* Created by: {@Desislava Kancheva/GitHub username: @DesiK736} */
 /*Write a test class to verify the content of a web page. The class should include one test to check if the page title, header, and footer are displayed
