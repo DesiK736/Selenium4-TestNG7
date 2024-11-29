@@ -1,4 +1,4 @@
-package HW2.Selenium;
+package hw2.selenium;
 
 /* Created by: {@Desislava Kancheva/GitHub username: @DesiK736} */
 //Exercising Selenium WebDriver with few tests.
@@ -50,7 +50,7 @@ public class InitialSeleniumTest {
     }
 }
 
-package HW2.Selenium;
+package hw2.selenium;
 
 /* Created by: {@Desislava Kancheva/GitHub username: @DesiK736} */
 
@@ -110,7 +110,7 @@ public class LoginFieldsTest {
    }
 }
 
-package HW2.Selenium;
+package hw2.selenium;
 
 /* Created by: {@Desislava Kancheva/GitHub username: @DesiK736} */
 
@@ -145,7 +145,7 @@ public class WindowOperationsTest {
     }
 }
 
-package HW2.Selenium;
+package hw2.selenium;
 
 /* Created by: {@Desislava Kancheva/GitHub username: @DesiK736} */
 
