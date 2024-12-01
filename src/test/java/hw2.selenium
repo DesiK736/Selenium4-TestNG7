@@ -115,7 +115,7 @@ public void verifyUserProperLogin() throws InterruptedException  {
      Thread.sleep(4000);
      }
 
-    @AfterMethod
+    @AfterClass
     public void tearDown()  {
       if (driver!=null)  {
          driver.quit();
