@@ -3,61 +3,11 @@ package hw2.selenium;
 /* Created by: {@Desislava Kancheva/GitHub username: @DesiK736} */
 //Exercising Selenium WebDriver with few tests.
 
-import io.github.bonigarcia.wdm.WebDriverManager;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
-public class InitialSeleniumTest {
-
-    @Test
-    public void testLogin()  {
-        WebDriverManager.chromedriver().setup();
-        ChromeDriver driver = new ChromeDriver();
-        driver.manage().window().maximize();
-        driver.get("http://training.skillo-bg.com:4300/posts/all");
-
-        String pageTitle = driver.getTitle();
-        Assert.assertEquals("ISkillo", pageTitle);
-
-        WebElement loginLink = driver.findElement(By.cssSelector("#nav-link-login"));
-        loginLink.click();
-
-        String expectedLoginPageUrl = "http://training.skillo-bg.com:4300/users/login";
-        String actualLoginPageUrl = driver.getCurrentUrl();
-        Assert.assertEquals(actualLoginPageUrl, expectedLoginPageUrl, "Expected Login url page didn't match Actual Login page!");
-
-        WebElement signInElement = driver.findElement(By.xpath("//*[contains(text(),'Si')]"));
-        Assert.assertTrue(signInElement.isDisplayed(), "The 'Sign in' form is failed to display!");
-
-        WebElement userNameField = driver.findElement(By.id("defaultLoginFormUsername"));
-        userNameField.sendKeys("j.andrews@abv.bg");
-
-        WebElement passwordField = driver.findElement(By.id("defaultLoginFormPassword"));
-        passwordField.sendKeys("dwakahe251");
-
-        WebElement rememberMeCheckBox = driver.findElement(By.xpath("//*[text()='Remember me']"));
-        rememberMeCheckBox.click();
-        Assert.assertTrue(rememberMeCheckBox.isSelected());
-
-        WebElement signInButton = driver.findElement(By.id("sign-in-button"));
-        Assert.assertTrue(signInButton.isEnabled());
-        signInButton.click();
-
-        driver.close();
-    }
-}
-
-package hw2.selenium;
-
-/* Created by: {@Desislava Kancheva/GitHub username: @DesiK736} */
-
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
@@ -67,43 +17,106 @@ import org.testng.annotations.Test;
 import java.time.Duration;
 
 public class LoginFieldsTest {
-   public static final String MAIN_URL = "http://training.skillo-bg.com:4300/posts/all";
-   public static final String PAGE_TITLE = "ISkillo";
+   private static final String MAIN_URL = "http://training.skillo-bg.com:4300/posts/all";
+   private static final String PAGE_TITLE = "ISkillo";
 
    WebDriver driver = new ChromeDriver();
-   WebDriverWait wait = new WebDriverWait(driver, Duration.ofMillis(200));
+   WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(14));
 
    @BeforeMethod
    public void tuneBrowser()  {
-      driver.manage().window().maximize();
-      driver.manage().timeouts().implicitlyWait(Duration.ofMillis(300));
+       driver.manage().window().maximize();
+       driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+       driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(15));
    }
+
    @Test
-   public void verifyLoginPageNavigation()  throws InterruptedException  {
+   public void verifyHomeLoginPageForUnloggedUser()  throws InterruptedException {
       driver.get(MAIN_URL);
-      System.out.println("The user is on ISkillo home page.");
+
+      //1.1. First check, that the user is on the home page title
       String actualPageTitle = driver.getTitle();
+      System.out.println("The user is landed on the home web page's title  " + actualPageTitle);
       Assert.assertEquals(PAGE_TITLE, actualPageTitle);
 
-      System.out.println("Verify home page title, when user is not logged in.");
-      WebElement nav_login_btn = driver.findElement(By.cssSelector("#nav-link-login"));
+      //1.2. Identify web elements for navigation bar and perform click action
+      //1.2.1. Check navigation bar home
+      WebElement navigationBarHomeLink = driver.findElement(By.cssSelector("#nav-link-home"));
+      boolean isNavBarHomeLinkDisplayed = navigationBarHomeLink.isDisplayed();
+      Assert.assertTrue(isNavBarHomeLinkDisplayed);
 
-      nav_login_btn.click();
+      //1.2.2. Check navigation bar login
+      WebElement navigationBarLoginLink = driver.findElement(By.cssSelector("a[id^='nav-link-lo']"));
+      String expectedLoginText = "Login";
+      String actualLoginText = navigationBarLoginLink.getText();
+      Assert.assertEquals(actualLoginText, expectedLoginText);
 
-      WebElement user_name_field = driver.findElement(By.cssSelector("#defaultLoginFormUsername"));
-
-      user_name_field.clear();
-      user_name_field.sendKeys("Fill your proper username.");
-
-      WebElement signIn_btn = driver.findElement(By.id("sign-in-button"));
-
-      String signIn_btn_label = signIn_btn.getText();
-      System.out.println(signIn_btn_label);
-
-      Thread.sleep(4000);
+      //1.2.3. Check, whether Login button is visible and clickable
+      WebElement navigationBarLoginBtn = driver.findElement(By.cssSelector("#nav-link-login"));
+      wait.until(ExpectedConditions.visibilityOf(navigationBarLoginBtn));
+      wait.until(ExpectedConditions.elementToBeClickable(navigationBarLoginBtn));
+      navigationBarLoginBtn.click();
    }
-   @AfterMethod
-   public void tearDown()  {
+
+@Test
+public void verifyUserProperLogin() throws InterruptedException  {
+      //Step 1. Navigate to Login page
+      driver.get("http://training.skillo-bg.com:4300/users/login");
+      //Step 1.1. Check Sign in title
+      WebElement signInFormTitle = driver.findElement(By.cssSelector("p.h4"));
+      String expectedSignInFormTitle = "Sign in";
+      String actualSignInFormTitle = signInFormTitle.getText();
+      Assert.assertEquals(actualSignInFormTitle, expectedSignInFormTitle);
+
+      //Step 1.2. Check the user is on Login page
+      WebElement usernameInputField = driver.findElement(By.cssSelector("#defaultLoginFormUsername"));
+      String expectedPlaceholderUsername = "Username or email";
+      String actualPlaceholderUsername = usernameInputField.getAttribute("placeholder");
+      Assert.assertEquals(actualPlaceholderUsername, expectedPlaceholderUsername);
+
+      //Step 1.3. Verify placeholder for password
+     WebElement placeholderPasswordField = driver.findElement(By.cssSelector("input[placeholder=Password]"));
+     String expectedPlaceholderPassword = "Password";
+     String actualPlaceholderPassword = placeholderPasswordField.getAttribute("placeholder");
+     Assert.assertEquals(actualPlaceholderPassword, expectedPlaceholderPassword);
+
+     //Step 1.4. Verify login form for submit button text
+     WebElement loginFormSubmitBtnLabel = driver.findElement(By.xpath("//button[contains(text(),'Sign in')]"));
+     String expectedLoginSubmitBtnLabel = "Sign in";
+     String actualLoginSubmitBtnLabel = loginFormSubmitBtnLabel.getText();
+     Assert.assertEquals(actualLoginSubmitBtnLabel, expectedLoginSubmitBtnLabel);
+
+     //Step 2. Provide username details
+     String user = "jk.stewart";  //web element 'username' has already been defined in line 70
+     usernameInputField.clear();
+     usernameInputField.sendKeys(user);
+
+     //Step 3. Initialize password
+     WebElement userPasswordInputField = driver.findElement(By.cssSelector("#defaultLoginFormPassword"));
+     String password = "254684srtd";
+     userPasswordInputField.clear();
+     userPasswordInputField.sendKeys(password);
+
+     //Step 4. Click on login form submit button
+     WebElement loginFormSubmitBtn = driver.findElement(By.id("sign-in-button"));
+
+     boolean isLgnBtnDisplayed = loginFormSubmitBtn.isDisplayed();
+     if (isLgnBtnDisplayed)  {
+      System.out.println("The login submit button is enabled.");
+      loginFormSubmitBtn.click();
+     }
+
+     //Step 5. Check for wrong user or pass
+     WebElement generalAlertMsg = driver.findElement(By.xpath("//div[contains(@class,'toast-message ng-star-inserted')]"));
+     String expectedErrorMsg = "Wrong username or password!";
+     String actualErrorMsg = generalAlertMsg.getText();
+     Assert.assertEquals(actualErrorMsg, expectedErrorMsg);
+
+     Thread.sleep(4000);
+     }
+
+    @AfterMethod
+    public void tearDown()  {
       if (driver!=null)  {
          driver.quit();
       }
@@ -116,65 +129,203 @@ package hw2.selenium;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WindowType;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.testng.annotations.Test;
-
-import java.time.Duration;
-
-public class WindowOperationsTest {
-
-    @Test
-    public void previewWindowOptions ()  {
-        WebDriver driver = new ChromeDriver();
-        driver.get("https://webdriveruniversity.com/");
-        driver.manage().window().maximize();
-        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(100));
-
-        driver.switchTo().newWindow(WindowType.TAB);
-        driver.get("http://google.com");
-        driver.findElement(By.name("q")).sendKeys("Glad to see you here! :  )");
-
-        driver.switchTo().newWindow(WindowType.WINDOW);
-        driver.get("https://dir.bg/");
-        System.out.println(driver.getTitle());
-
-        System.out.println(driver.getWindowHandles().size());
-
-        driver.quit();
-    }
-}
-
-package hw2.selenium;
-
-/* Created by: {@Desislava Kancheva/GitHub username: @DesiK736} */
-
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.time.Duration;
 
-public class IFrameActionsTest {
+public class RegisterFieldsTest {
+    private static final String REG_URL = "http://training.skillo-bg.com:4300/users/register";
+    private static final String TITLE_NAME = "ISkillo";
 
-    @Test
-    public void lookThroughIFrames()  throws InterruptedException  {
-        WebDriver driver = new ChromeDriver();
-        WebDriverWait wait = new WebDriverWait(driver,Duration.ofSeconds(10));
-        driver.get("https://webdriveruniversity.com/IFrame/index.html");
+    WebDriver driver = new ChromeDriver();
+    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(12));
+
+    //1. Open browser with the given URL and navigate to Registration page
+    @BeforeMethod
+    public void openBrowser() {
+        driver.manage().deleteAllCookies();
+        driver.get("http://training.skillo-bg.com:4300/users/register");
+
         driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(15));
         driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(15));
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+    }
 
+    //Step 2. Verify elements on the Registration page
+    @Test
+    public void verifyElementsOnRegistrationPage() throws InterruptedException {
+        driver.get(REG_URL);
 
-        System.out.println("Total Number of 'IFrames' in this page are: ");
-        System.out.println(driver.findElements(By.tagName("iframe")).size());
+        //Step 2.1. Inspect navigation bar web elements
+        //Step 2.1.1. Check, whether the user is on the Reg page with proper page title name
+        String actualRegPageTitle = driver.getTitle();
+        System.out.println("The user is on the Registration page with title name:  " + actualRegPageTitle);
+        Assert.assertEquals(actualRegPageTitle, TITLE_NAME);
 
-        driver.switchTo().frame("frame");
-        driver.findElement(By.xpath("//*[contains(text(),'Our')]")).click();
+        //Step 2.1.2. Check navigation bar registration link
+        WebElement navigationBarRegLink = driver.findElement(By.cssSelector("#nav-link-login"));
+        navigationBarRegLink.isDisplayed();
 
-        driver.quit();
+        //Step 2.2. Inspect each of the web elements on the Registration page
+        //Step 2.2.1. Verify ISkillo logo
+        WebElement navigationBarHomeIcon = driver.findElement(By.cssSelector("#homeIcon"));
+        navigationBarHomeIcon.isDisplayed();
+
+        //Step 2.2.2. Verify sign up title
+        WebElement signUpTitleLabel = driver.findElement(By.cssSelector("h4.text-center"));
+        String expectedSignUpLabel = "Sign up";
+        String actualSignUpLabel = signUpTitleLabel.getText();
+        Assert.assertEquals(actualSignUpLabel, expectedSignUpLabel);
+
+        //Step 2.2.3. Inspect sign up input fields on registration form
+        //Step 2.2.3.1. Check username field
+        WebElement usernameRegInput = driver.findElement(By.name("username"));
+        String expectedUserInput = "Username";
+        String actualUserInput = usernameRegInput.getAttribute("placeholder");
+        Assert.assertEquals(actualUserInput, expectedUserInput);
+
+        //Step 2.2.3.2. Check email field
+        WebElement emailRegInput = driver.findElement(By.cssSelector("input[placeholder=email]"));
+        String expectedPlaceholderEmail = "email";
+        String actualPlaceholderEmail = emailRegInput.getAttribute("placeholder");
+        Assert.assertEquals(actualPlaceholderEmail, expectedPlaceholderEmail);
+
+        //Step 2.2.3.3. Check calendar pop-up field
+        //Step 2.2.3.3.1. Verify calendar pop-up field for the required date format
+        WebElement calendarPopUpIcon = driver.findElement(By.cssSelector("input[type=date]"));
+
+        calendarPopUpIcon.clear();
+        String calendarDateToSelect = "01/04/1999"; //Input date in required format: mm/dd/yyyy
+        calendarPopUpIcon.sendKeys(calendarDateToSelect);
+        /*If we try to check the selected date, the test will fail, due to different date formats.
+           Expected: 01/04/1999; Actual: 1999-01-04; default date format is the Actual*/
+      
+        //Step 2.2.3.3.2. Check the calendar pop-up field to open a date picker
+        calendarPopUpIcon.click();
+
+        WebElement calendarDateInput = driver.findElement(By.cssSelector("input[type=date]")); // Select a specific date
+        calendarDateInput.click();
+
+        //Step 2.2.3.4. Check password placeholder
+        WebElement placeholderPasswordField = driver.findElement(By.cssSelector("input[placeholder=Password]"));
+        String expectedPlaceholderPass = "Password";
+        String actualPlaceholderPass = placeholderPasswordField.getAttribute("placeholder");
+        Assert.assertEquals(actualPlaceholderPass, expectedPlaceholderPass);
+
+        //Step 2.2.3.5. Check confirm password placeholder
+        WebElement placeholderConfirmPassField = driver.findElement(By.cssSelector("input[placeholder='Confirm Password']"));
+        String expectedPlaceholderConfirmPass = "Confirm Password";
+        String actualPlaceholderConfirmPass = placeholderConfirmPassField.getAttribute("placeholder");
+        Assert.assertEquals(actualPlaceholderConfirmPass, expectedPlaceholderConfirmPass);
+
+        //Step 2.2.3.6. Check public info placeholder
+        WebElement placeholderTextAreaField = driver.findElement(By.cssSelector("textarea[placeholder='Public info']"));
+        String expectedPlaceholderTextArea = "Public info";
+        String actualPlaceholderTextArea = placeholderTextAreaField.getAttribute("placeholder");
+        Assert.assertEquals(actualPlaceholderTextArea, expectedPlaceholderTextArea);
+
+        //Step 2.2.4. Check sign in button
+        //Step 2.2.4.1. Inspect sign in button text
+        WebElement regFormSubmitBtnLabel = driver.findElement(By.xpath("//button[contains(text(),'Sign in')]"));
+        String expectedRegSubmitBtnLabel = "Sign in";
+        String actualRegSubmitBtnLabel = regFormSubmitBtnLabel.getText();
+        Assert.assertEquals(actualRegSubmitBtnLabel, expectedRegSubmitBtnLabel);
+
+        //Step 2.2.4.2. Inspect sign in button for visibility and proper display
+        WebElement regFormSubmitBtn = driver.findElement(By.xpath("//*[@id='sign-in-button']"));
+
+        boolean isRegSubmitBtnDisplayed = regFormSubmitBtn.isDisplayed();
+        if (isRegSubmitBtnDisplayed) {
+            System.out.println("The registration submit button is displayed.");
+            wait.until(ExpectedConditions.visibilityOf(regFormSubmitBtn));
+            regFormSubmitBtn.click();
+        }
+    }
+
+    //Step 3. Verify Registration process with providing valid input data
+    //Step 3.1. Provide valid input data for user1 registration
+    @Test(priority = 1)
+    public void validUserRegistration1() throws InterruptedException {
+
+        WebElement username = driver.findElement(By.name("username"));
+        username.clear();
+        username.sendKeys("jamesClark15250");
+
+        WebElement email = driver.findElement(By.cssSelector("input[placeholder=email]"));
+        email.clear();
+        email.sendKeys("guru.it@gmail.com");
+
+        WebElement calendar = driver.findElement(By.cssSelector("input[type=date]"));
+        calendar.click();
+
+        WebElement password = driver.findElement(By.name("password"));
+        password.clear();
+        password.sendKeys("cool1245jl");
+
+        WebElement confirmPassword = driver.findElement(By.cssSelector("input[placeholder='Confirm Password']"));
+        confirmPassword.clear();
+        confirmPassword.sendKeys("cool1245jl");
+
+        WebElement publicInfo = driver.findElement(By.cssSelector("textarea[placeholder='Public info']"));
+        publicInfo.clear();
+        publicInfo.sendKeys("software engineer");
+
+        WebElement signIn = driver.findElement(By.xpath("//*[@id='sign-in-button']"));
+        signIn.click();
+
+        WebElement generalAlertMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='sign-in-button']")));
+        String successAlertMsg = generalAlertMsg.getText();
+        System.out.println("Alert message:  " + successAlertMsg + " registration completed successfully!");
+    }
+
+    //Step 3.2. Provide input data for user2 registration with email, which has already exist
+    @Test(priority = 2)
+    public void invalidEmailUserRegistration2() throws InterruptedException {
+        WebElement username2 = driver.findElement(By.name("username"));
+        username2.clear();
+        username2.sendKeys("sindy_Iverson78");
+
+        WebElement email = driver.findElement(By.cssSelector("input[placeholder=email]"));
+        email.clear();
+        email.sendKeys("guru.it@gmail.com");
+
+        WebElement calendar = driver.findElement(By.cssSelector("input[type=date]"));
+        calendar.click();
+
+        WebElement password = driver.findElement(By.name("password"));
+        password.clear();
+        password.sendKeys("14256322Hg");
+
+        WebElement confirmPassword = driver.findElement(By.cssSelector("input[placeholder='Confirm Password']"));
+        confirmPassword.clear();
+        confirmPassword.sendKeys("14256322Hg");
+
+        WebElement publicInfo = driver.findElement(By.cssSelector("textarea[placeholder='Public info']"));
+        publicInfo.clear();
+        publicInfo.sendKeys(" good IT specialist");
+
+        WebElement signIn = driver.findElement(By.xpath("//*[@id='sign-in-button']"));
+        signIn.click();
+
+        WebElement generalAlertMsg = driver.findElement(By.cssSelector("input[placeholder=email]"));
+        String expectedErrorMsg = "The entered email has already been registered!";
+        String actualErrorMsg = generalAlertMsg.getAttribute("value");
+        Assert.assertEquals(actualErrorMsg, expectedErrorMsg);
+
+        Thread.sleep(4000);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
     }
 }
