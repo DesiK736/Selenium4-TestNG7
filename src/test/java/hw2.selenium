@@ -3,6 +3,7 @@ package hw2.selenium;
 /* Created by: {@Desislava Kancheva/GitHub username: @DesiK736} */
 //Exercising Selenium WebDriver with few tests.
 
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -10,7 +11,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -29,7 +30,6 @@ public class LoginFieldsTest {
        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(15));
    }
-
    @Test
    public void verifyHomeLoginPageForUnloggedUser()  throws InterruptedException {
       driver.get(MAIN_URL);
@@ -68,7 +68,7 @@ public void verifyUserProperLogin() throws InterruptedException  {
       String actualSignInFormTitle = signInFormTitle.getText();
       Assert.assertEquals(actualSignInFormTitle, expectedSignInFormTitle);
 
-      //Step 1.2. Check the user is on Login page
+      //Step 1.2. Verify placeholder for username
       WebElement usernameInputField = driver.findElement(By.cssSelector("#defaultLoginFormUsername"));
       String expectedPlaceholderUsername = "Username or email";
       String actualPlaceholderUsername = usernameInputField.getAttribute("placeholder");
@@ -86,12 +86,12 @@ public void verifyUserProperLogin() throws InterruptedException  {
      String actualLoginSubmitBtnLabel = loginFormSubmitBtnLabel.getText();
      Assert.assertEquals(actualLoginSubmitBtnLabel, expectedLoginSubmitBtnLabel);
 
-     //Step 2. Provide username details
-     String user = "jk.stewart";  //web element 'username' has already been defined in line 70
-     usernameInputField.clear();
-     usernameInputField.sendKeys(user);
+      //Step 2. Provide username details
+      String user = "jk.stewart";  //web element 'username' has already been defined in line 70
+      usernameInputField.clear();
+      usernameInputField.sendKeys(user);
 
-     //Step 3. Initialize password
+      //Step 3. Initialize password
      WebElement userPasswordInputField = driver.findElement(By.cssSelector("#defaultLoginFormPassword"));
      String password = "254684srtd";
      userPasswordInputField.clear();
@@ -105,7 +105,6 @@ public void verifyUserProperLogin() throws InterruptedException  {
       System.out.println("The login submit button is enabled.");
       loginFormSubmitBtn.click();
      }
-
      //Step 5. Check for wrong user or pass
      WebElement generalAlertMsg = driver.findElement(By.xpath("//div[contains(@class,'toast-message ng-star-inserted')]"));
      String expectedErrorMsg = "Wrong username or password!";
@@ -122,6 +121,11 @@ public void verifyUserProperLogin() throws InterruptedException  {
       }
    }
 }
+
+
+package hw2.selenium;
+
+/* Created by: {@Desislava Kancheva/GitHub username: @DesiK736} */
 
 package hw2.selenium;
 
@@ -206,7 +210,9 @@ public class RegisterFieldsTest {
         calendarPopUpIcon.sendKeys(calendarDateToSelect);
         /*If we try to check the selected date, the test will fail, due to different date formats.
            Expected: 01/04/1999; Actual: 1999-01-04; default date format is the Actual*/
-      
+        //String actualDateToSelect = calendarPopUpIcon.getAttribute("value");
+        //Assert.assertEquals(actualDateToSelect, calendarDateToSelect);
+
         //Step 2.2.3.3.2. Check the calendar pop-up field to open a date picker
         calendarPopUpIcon.click();
 
@@ -252,7 +258,7 @@ public class RegisterFieldsTest {
     //Step 3. Verify Registration process with providing valid input data
     //Step 3.1. Provide valid input data for user1 registration
     @Test(priority = 1)
-    public void validUserRegistration1() throws InterruptedException {
+    public void validUserRegistration() throws InterruptedException {
 
         WebElement username = driver.findElement(By.name("username"));
         username.clear();
@@ -264,14 +270,16 @@ public class RegisterFieldsTest {
 
         WebElement calendar = driver.findElement(By.cssSelector("input[type=date]"));
         calendar.click();
+        calendar.clear();
+        calendar.sendKeys("02/01/1985");
 
         WebElement password = driver.findElement(By.name("password"));
         password.clear();
-        password.sendKeys("cool1245jl");
+        password.sendKeys("cool1245jlK");
 
         WebElement confirmPassword = driver.findElement(By.cssSelector("input[placeholder='Confirm Password']"));
         confirmPassword.clear();
-        confirmPassword.sendKeys("cool1245jl");
+        confirmPassword.sendKeys("cool1245jlK");
 
         WebElement publicInfo = driver.findElement(By.cssSelector("textarea[placeholder='Public info']"));
         publicInfo.clear();
@@ -285,9 +293,9 @@ public class RegisterFieldsTest {
         System.out.println("Alert message:  " + successAlertMsg + " registration completed successfully!");
     }
 
-    //Step 3.2. Provide input data for user2 registration with email, which has already exist
+    //Step 3.2. Provide input data for the second user registration with email, which has already exist
     @Test(priority = 2)
-    public void invalidEmailUserRegistration2() throws InterruptedException {
+    public void invalidUserRegistrationWithDuplicatedEmail() throws InterruptedException {
         WebElement username2 = driver.findElement(By.name("username"));
         username2.clear();
         username2.sendKeys("sindy_Iverson78");
@@ -298,6 +306,8 @@ public class RegisterFieldsTest {
 
         WebElement calendar = driver.findElement(By.cssSelector("input[type=date]"));
         calendar.click();
+        calendar.clear();
+        calendar.sendKeys("05/05/1949");
 
         WebElement password = driver.findElement(By.name("password"));
         password.clear();
@@ -309,7 +319,7 @@ public class RegisterFieldsTest {
 
         WebElement publicInfo = driver.findElement(By.cssSelector("textarea[placeholder='Public info']"));
         publicInfo.clear();
-        publicInfo.sendKeys(" good IT specialist");
+        publicInfo.sendKeys("good IT specialist");
 
         WebElement signIn = driver.findElement(By.xpath("//*[@id='sign-in-button']"));
         signIn.click();
