@@ -1,0 +1,257 @@
+package hw3;
+
+/* Created by: {@Desislava Kancheva/GitHub username: @DesiK736} */
+
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import java.time.Duration;
+
+public class AdvancedMethodsTest {
+    private final static String CHECKBOX_URL = "https://webdriveruniversity.com/Dropdown-Checkboxes-RadioButtons/index.html";
+    private final static String RADIOBUTTON_URL = "https://webdriveruniversity.com/Dropdown-Checkboxes-RadioButtons/index.html";
+    private final static String DROPDOWN_URL = "https://webdriveruniversity.com/Dropdown-Checkboxes-RadioButtons/index.html";
+    private final static String REGULAR_ALERT_URL = "https://www.selenium.dev/documentation/webdriver/interactions/alerts/";
+    private final static String CONFIRM_ALERT_URL = "https://www.selenium.dev/documentation/webdriver/interactions/alerts/";
+    private final static String PROMPT_ALERT_URL = "https://the-internet.herokuapp.com/javascript_alerts";
+
+    WebDriver driver = new ChromeDriver();
+    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(12));
+
+    @BeforeMethod
+    public void tearUpBrowser() {
+        driver.manage().deleteAllCookies();
+        driver.get(CHECKBOX_URL);
+
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(14));
+    }
+
+    @AfterMethod
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+
+    @Test
+    public void verifyCheckBoxesWorkflow() throws InterruptedException {
+
+        //Step.1 Check url navigation
+        wait.until(ExpectedConditions.urlContains(CHECKBOX_URL));
+        System.out.println("The checkbox url is verified successfully!");
+
+        //Step.2 Verify web element checkbox interaction
+        WebElement checkboxOption1 = driver.findElement(By.cssSelector("input[value=option-1]"));
+        wait.until(ExpectedConditions.visibilityOf(checkboxOption1));
+        wait.until(ExpectedConditions.elementToBeClickable(checkboxOption1));
+
+        WebElement checkboxOption2 = driver.findElement(By.cssSelector("input[value=option-2]"));
+        wait.until(ExpectedConditions.visibilityOf(checkboxOption2));
+        wait.until(ExpectedConditions.elementToBeClickable(checkboxOption2));
+
+        WebElement checkboxOption3 = driver.findElement(By.cssSelector("input[value=option-3]"));
+        wait.until(ExpectedConditions.visibilityOf(checkboxOption3));
+        wait.until(ExpectedConditions.elementToBeClickable(checkboxOption3));
+
+        WebElement checkboxOption4 = driver.findElement(By.cssSelector("input[value=option-4]"));
+        wait.until(ExpectedConditions.visibilityOf(checkboxOption4));
+        wait.until(ExpectedConditions.elementToBeClickable(checkboxOption4));
+
+        //Step.3 Verify selection of checkboxes
+        checkboxOption1.click();  //Real functionality check
+        checkboxOption4.click();
+
+        boolean isCheckbox1Selected = checkboxOption1.isSelected(); //Test verification
+        boolean isCheckbox2Selected = checkboxOption2.isSelected();
+        boolean isCheckbox3Selected = checkboxOption3.isSelected();
+        boolean isCheckbox4Selected = checkboxOption4.isSelected();
+        Thread.sleep(4000);
+        Assert.assertTrue(isCheckbox1Selected);
+        Assert.assertFalse(isCheckbox2Selected);
+        Assert.assertTrue(isCheckbox3Selected);
+        Assert.assertTrue(isCheckbox4Selected);
+
+        //Step.4 Check, whether the checkbox1 is unselected, after clicking again
+        Thread.sleep(4000);
+        checkboxOption1.click();
+        isCheckbox1Selected = checkboxOption1.isSelected();
+        Assert.assertFalse(isCheckbox1Selected);
+
+        //Step.5 Check, whether all checkboxes are selected, after final click
+        checkboxOption1.click();
+        Thread.sleep(4000);
+        Assert.assertFalse(isCheckbox1Selected);
+        Assert.assertFalse(isCheckbox2Selected);
+        Assert.assertTrue(isCheckbox3Selected);
+        Assert.assertTrue(isCheckbox4Selected);
+
+        Thread.sleep(4000);
+    }
+
+    @Test
+    public void verifyRadioButtonWorkflow() throws InterruptedException  {
+
+        //Step.1 Check url navigation
+        driver.get(RADIOBUTTON_URL);
+        wait.until(ExpectedConditions.urlContains(RADIOBUTTON_URL));
+
+        //Step.2 Selenium interaction with radio button
+        WebElement blueRadioButton = driver.findElement(By.cssSelector("input[value=blue]"));
+        wait.until(ExpectedConditions.visibilityOf(blueRadioButton));
+        wait.until(ExpectedConditions.elementToBeClickable(blueRadioButton));
+
+        WebElement yellowRadioButton = driver.findElement(By.cssSelector("input[value=yellow]"));
+        wait.until(ExpectedConditions.visibilityOf(yellowRadioButton));
+        wait.until(ExpectedConditions.elementToBeClickable(yellowRadioButton));
+
+        WebElement purpleRadioButton = driver.findElement(By.cssSelector("input[value=purple]"));
+        wait.until(ExpectedConditions.visibilityOf(purpleRadioButton));
+        wait.until(ExpectedConditions.elementToBeClickable(purpleRadioButton));
+
+        //Step.3 Real functionality test
+        blueRadioButton.click();
+
+        //Step.4 Verification test, that the blue radio button is selected
+        boolean isBlueRadioButtonSelected = blueRadioButton.isSelected();
+        Assert.assertTrue(isBlueRadioButtonSelected);
+        System.out.println("** First click: Blue radio button is selected **");
+        Thread.sleep(4000);
+
+        //Step.5 Test, whether the blue radio button is unselected
+        yellowRadioButton.click();
+        isBlueRadioButtonSelected = blueRadioButton.isSelected();
+        Assert.assertFalse(isBlueRadioButtonSelected);
+        Thread.sleep(4000);
+        System.out.println("** Second click: Yellow radio button is selected **");
+
+        //Step.6 Test, whether purple radio button is selected, if not - click on it
+        boolean isPurpleRadioButtonSelected = purpleRadioButton.isSelected();
+        if (!isPurpleRadioButtonSelected)  {
+            purpleRadioButton.click();
+
+            Thread.sleep(4000);
+            System.out.println("** Third click: Purple radio button is selected **");
+        }
+    }
+
+    @Test
+    public void verifyDropDownMenuWorkflow() throws InterruptedException {
+
+        //Step.1 Check url navigation
+        driver.get(DROPDOWN_URL);
+        wait.until(ExpectedConditions.urlContains(DROPDOWN_URL));
+
+        //Step.2 Dropdown interaction by index (using selenium library Select)
+        Select dropDownMenuSelectionOption1 = new Select(driver.findElement(By.cssSelector("#dropdowm-menu-1")));
+        dropDownMenuSelectionOption1.selectByIndex(1);
+        Thread.sleep(4000);
+
+        Select dropDownMenuSelectionOption2 = new Select(driver.findElement(By.cssSelector("#dropdowm-menu-2")));
+        dropDownMenuSelectionOption2.selectByIndex(2);
+        Thread.sleep(4000);
+
+        Select dropDownMenuSelectionOption3 = new Select(driver.findElement(By.cssSelector("#dropdowm-menu-3")));
+        dropDownMenuSelectionOption3.selectByIndex(3);
+        Thread.sleep(4000);
+
+        //Step.3 Dropdown interaction by visible text
+        dropDownMenuSelectionOption1.selectByVisibleText("JAVA");
+        Thread.sleep(4000);
+
+        dropDownMenuSelectionOption2.selectByVisibleText("JUnit");
+        Thread.sleep(4000);
+
+        //Step.4 Dropdown interaction by value
+        dropDownMenuSelectionOption1.selectByValue("c#");
+        Thread.sleep(4000);
+
+        dropDownMenuSelectionOption3.selectByValue("javascript");
+        Thread.sleep(400);
+    }
+
+    @Test
+    public void verifyRegularAlertInteraction() throws InterruptedException {
+
+        //Step.1 Navigation verification
+        driver.get(REGULAR_ALERT_URL);
+        wait.until(ExpectedConditions.urlContains(REGULAR_ALERT_URL));
+
+        //Step.2 Selenium interaction with alert button
+        WebElement alertButton = driver.findElement(By.linkText("See an example alert"));
+        wait.until(ExpectedConditions.visibilityOf(alertButton));
+        alertButton.click();
+
+        //Step.3 Real functionality check
+        Alert simpleAlert = wait.until(ExpectedConditions.alertIsPresent());
+        System.out.println("The alert text is:  " + simpleAlert.getText());
+
+        simpleAlert.accept(); //Accept the alert
+        Thread.sleep(4000);
+    }
+
+    @Test
+    public void verifyConfirmationAlertInteraction() throws InterruptedException {
+
+        //For the current test, Mozilla Firefox is the main used browser
+        //Step.1 Navigation verification
+        driver.get(CONFIRM_ALERT_URL);
+        wait.until(ExpectedConditions.urlContains(CONFIRM_ALERT_URL));
+
+        //Step.2 Selenium interaction with confirm alert button
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("window.scrollBy(0,750)", "");
+
+        WebElement confirmationAlertButton = driver.findElement(By.linkText("See a sample confirm"));
+        wait.until(ExpectedConditions.visibilityOf(confirmationAlertButton));
+        confirmationAlertButton.click();
+
+        //Step.3 Real functionality check
+        Alert confirmationAlert = wait.until(ExpectedConditions.alertIsPresent());
+        System.out.println("The confirmation alert text is : " + confirmationAlert.getText());
+
+        confirmationAlert.accept();
+        Thread.sleep(4000);
+    }
+
+    @Test
+    public void verifyPromptAlertInteraction() throws InterruptedException {
+
+        //For the current test, Mozilla Firefox is the main used browser.
+        //Step.1 url navigation via Firefox browser: test pass
+        driver.get(PROMPT_ALERT_URL);
+
+        //Step.2 Selenium interaction with prompt alert button
+        WebElement promptAlertButton = driver.findElement(By.xpath("//button[contains(text(),'Click for JS Prompt')]"));
+        wait.until(ExpectedConditions.visibilityOf(promptAlertButton));
+        wait.until(ExpectedConditions.elementToBeClickable(promptAlertButton));
+        promptAlertButton.click();
+
+        //Step.3 Real functionality check
+        wait.until(ExpectedConditions.alertIsPresent());
+        Alert promptAlert = driver.switchTo().alert();
+        System.out.println("The prompt alert text is:  " + promptAlert.getText());
+
+        String promptMsg = "Congrats!";
+        promptAlert.sendKeys(promptMsg);
+        Thread.sleep(4000);
+
+        promptAlert.accept();  //Chrome browser won't provide the sendKeys text: it will not be visible, although it is accepted.
+        Thread.sleep(4000);
+
+        //Step.4 Verify the text was sent with sendKeys
+        WebElement providedTxtInPromptBox = driver.findElement(By.xpath("//p[contains(@id,'result')]"));
+        String actualProvidedPromptTxt = providedTxtInPromptBox.getText();
+        boolean isTextProvided = actualProvidedPromptTxt.contains(promptMsg);
+        Assert.assertTrue(isTextProvided);
+    }
+}
